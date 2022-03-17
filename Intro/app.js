@@ -66,12 +66,12 @@ console.log(files); */
 }) */
 
  // EVENTS
-// pull in the EventEmitter class
+/* // pull in the EventEmitter class
 const EventEmitter = require('events');
 // create object of EventEmitter class
-const emitter = new EventEmitter(); 
+const emitter = new EventEmitter();  */
 
-// Register listener
+/* // Register listener
 //emitter.on('messageLogged', function(arg){
 // ARROW FUNCTION replaces function keyword from above
 emitter.on('messageLogged', (arg) => {
@@ -79,7 +79,15 @@ emitter.on('messageLogged', (arg) => {
     // Output:
     //Listener called { id: 1, url: 'httpL//' }   
 });
+ */
+const EventEmitter = require('events');
 
+const Logger = require('./logger');
+const logger = new Logger();
 
-const log = require('./logger');
-log.createMessage('message');
+// Register listener
+logger.on('messageLogged', (arg) => {
+  console.log('Listener called', arg); 
+});
+
+logger.log('message');
