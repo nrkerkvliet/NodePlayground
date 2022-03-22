@@ -1,8 +1,36 @@
 const Joi = require('joi');
 const express = require('express');
 const app = express();
+const helmet = require('helmet');
+const morgan = require('morgan');
+
+const logger = require('./logger');
 // enable json
 app.use(express.json());
+
+// middleware for parsing http request with x-www-form-urlencoded data
+// passing object with extended = true allows complex arrays etc to be parsed
+app.use(express.urlencoded( {extended: true}));
+
+// allows serving of static content such as css files
+// there is a readme.txt file in the staticContent directory
+// the readme can be navigated to directly with localhost:3000/readme.txt
+app.use(express.static('staticContent'));
+
+// https://github.com/helmetjs/helmet
+// Helps secure your apps by setting various HTTP headers.
+app.use(helmet());
+
+//http://expressjs.com/en/resources/middleware/morgan.html
+//HTTP request logger.	
+app.use(morgan('tiny'));
+
+app.use(logger);
+
+app.use((req,res,next)=>{
+    console.log('Authenticating...');
+    next();
+});
 
 const courses = [
     { id: 1, name: 'course1'},
