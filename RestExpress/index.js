@@ -1,10 +1,23 @@
+require('dotenv').config();
 const Joi = require('joi');
 const express = require('express');
 const app = express();
 const helmet = require('helmet');
-const morgan = require('morgan');
+if(process.env.NODE_ENV !== 'production'){
+    const morgan = require('morgan');
+    //http://expressjs.com/en/resources/middleware/morgan.html
+    //HTTP request logger.	
+    app.use(morgan('tiny'));
+    console.log(`Morgan enabled:  environment is ${process.env.NODE_ENV}`);
+}
 
 const logger = require('./logger');
+/* 
+console.log(`NODE_ENV is ${process.env.NODE_ENV}`); // undefined if not set
+
+console.log(`app.get is ${app.get('env')}`); // returns development by default
+ */
+
 // enable json
 app.use(express.json());
 
@@ -21,9 +34,6 @@ app.use(express.static('staticContent'));
 // Helps secure your apps by setting various HTTP headers.
 app.use(helmet());
 
-//http://expressjs.com/en/resources/middleware/morgan.html
-//HTTP request logger.	
-app.use(morgan('tiny'));
 
 app.use(logger);
 
