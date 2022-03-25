@@ -1,15 +1,10 @@
 require('dotenv').config();
+//https://www.npmjs.com/package/config
+const config = require('config');
 const Joi = require('joi');
 const express = require('express');
 const app = express();
 const helmet = require('helmet');
-if(process.env.NODE_ENV !== 'production'){
-    const morgan = require('morgan');
-    //http://expressjs.com/en/resources/middleware/morgan.html
-    //HTTP request logger.	
-    app.use(morgan('tiny'));
-    console.log(`Morgan enabled:  environment is ${process.env.NODE_ENV}`);
-}
 
 const logger = require('./logger');
 /* 
@@ -17,6 +12,9 @@ console.log(`NODE_ENV is ${process.env.NODE_ENV}`); // undefined if not set
 
 console.log(`app.get is ${app.get('env')}`); // returns development by default
  */
+
+app.set('view engine', 'pug');
+app.set('views', './views'); // this is a default setting and a the default option-- just here for education
 
 // enable json
 app.use(express.json());
@@ -37,6 +35,27 @@ app.use(helmet());
 
 app.use(logger);
 
+console.log(`${process.env.NODE_ENV}`);
+if(process.env.NODE_ENV !== 'production'){
+    const morgan = require('morgan');
+    //http://expressjs.com/en/resources/middleware/morgan.html
+    //HTTP request logger.	
+    app.use(morgan('tiny'));
+   /*  console.log(`Morgan enabled:  environment is ${process.env.NODE_ENV}`); */
+    //https://www.npmjs.com/package/debug
+    const debug = require('debug')('app.*');
+    debug('All debugging enabled');
+    /* const sDebug = require('debug')('app:startup');
+    const dbDebug = require('debug')('app:db');
+    sDebug('Startup Debug enabled');
+    dbDebug('DB Debug enabled.') */
+}
+console.log(`Application Name: ${config.get('name')}`);
+console.log(`Application Name: ${config.get('mail.host')}`);
+
+// custom-environment-variables maps the config to the environment variable
+console.log(`Mail Pass: ${config.get('mail.password')}`);
+
 app.use((req,res,next)=>{
     console.log('Authenticating...');
     next();
@@ -54,7 +73,7 @@ app.put();
 app.delete(); */
 
 app.get('/', (req, res) => {
-    res.send('Hello World');
+    res.render('index', {title:'My Express App',message:'Hello World'});
 });
 
 app.get('/api/courses', (req, res) => {
