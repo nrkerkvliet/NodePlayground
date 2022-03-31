@@ -5,31 +5,80 @@ mongoose.connect('mongodb://localhost/playground')
     .catch(err => console.log('Error:', err));
 
 const courseSchema = new mongoose.Schema({
-    name: String,
+    name: { 
+        type: String, 
+        required: true,
+        minLength: 5,
+        maxlength: 255
+        // match: /pattern/ // regex matching
+    },
+    category: {
+        type: String,
+        enum: ['web', 'mobile', 'network'],  // category must be one of these values
+        required: true
+    },
     author: String,
-    tags: [ String ],
+    tags: {
+        type: Array,
+        validate: {
+            // Async validation (if verifying data gainst DB or something like that)
+            isAsync: true,
+            validator: function(v) {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        const result = v && v.length > 0;
+                        resolve(result);
+                    }, 4000);
+                });
+        },
+        message: 'A course should have at least one tag'
+        }
+    },
+    // tags: { 
+    //     type: Array,
+    //     validate: {
+    //         validator: function(v) {
+    //             return v && v.length > 0;
+    //         },
+    //         message: 'A courese should have at least one tag.'
+    //         // custom validation function varifying at least one string in tag array
+    //     }
+    // },
     date: { type: Date, default: Date.now },
-    isPublished: Boolean
+    isPublished: Boolean,
+    price: {
+        type: Number,
+        required: function() { return this.isPublished; },
+        min: 10,
+        max: 200
+    }
 });
+// in this validation if isPublished = true then price is required
+
 
 const Course = mongoose.model('Course', courseSchema);
-const course = new Course({
-    name: 'Angular Course',
-    author: 'Nate',
-    tags: ['angular', 'frontend'],
-    isPublished: true
-});
 
-
-// createCourse();
+createCourse();
 // getCourses();
 // updateCourseQueryFirst('62420f1614efa563dc5a9bea');
 // updateCourseQueryAfter('62420f1614efa563dc5a9bea');
-removeCourse('62420f1614efa563dc5a9bea');
+// removeCourse('62420f1614efa563dc5a9bea');
 
 async function createCourse() {
-    const result = await course.save();
-    console.log(result);
+    const course = new Course({
+        name: 'Node Course',
+        author: 'Mosh',
+        category: 'web',
+        tags: ['backend', 'javascript'],
+        isPublished: true,
+        price: 15
+    });
+    try{
+       const result = await course.save();
+       console.log(result);
+    } catch(ex) {
+        console.log(ex.message);
+    } 
 }
 
 async function updateCourseQueryFirst(id) {
