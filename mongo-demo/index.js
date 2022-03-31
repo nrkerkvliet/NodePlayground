@@ -15,7 +15,10 @@ const courseSchema = new mongoose.Schema({
     category: {
         type: String,
         enum: ['web', 'mobile', 'network'],  // category must be one of these values
-        required: true
+        required: true,
+        lowercase: true, // converts input to lowercase automatically
+         /* uppercase: true */
+        trim: true
     },
     author: String,
     tags: {
@@ -50,7 +53,9 @@ const courseSchema = new mongoose.Schema({
         type: Number,
         required: function() { return this.isPublished; },
         min: 10,
-        max: 200
+        max: 200,
+        get: v => Math.round(v), // arrow function to round the value (getter)
+        set: v=> Math.round(v) // arrow function to round the value (setter)
     }
 });
 // in this validation if isPublished = true then price is required
@@ -68,8 +73,8 @@ async function createCourse() {
     const course = new Course({
         name: 'Node Course',
         author: 'Mosh',
-        category: 'web',
-        tags: ['backend', 'javascript'],
+        category: '-',
+        tags: null,
         isPublished: true,
         price: 15
     });
@@ -77,7 +82,8 @@ async function createCourse() {
        const result = await course.save();
        console.log(result);
     } catch(ex) {
-        console.log(ex.message);
+        for(field in ex.errors)
+            console.log(ex.errors[field].message);
     } 
 }
 
