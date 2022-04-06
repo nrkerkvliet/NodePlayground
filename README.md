@@ -2,7 +2,7 @@
 
 The following directories contain code for NodeJS and MongoDB web application.
 
-The code is not meant to the magnum opus of my abilities but instead a representation of concepts I am learning.
+The code is not meant to be the magnum opus of my abilities but instead a representation of concepts I am learning.
 
 Some modules being used are:  Express, Mongoose, Joi
 
