@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+/* const mongoose = require('mongoose').set('debug', true); */
 
 mongoose.connect('mongodb://localhost/playground')
   .then(() => console.log('Connected to MongoDB...'))
@@ -14,15 +15,14 @@ const Author = mongoose.model('Author', authorSchema);
 
 const Course = mongoose.model('Course', new mongoose.Schema({
   name: String,
-  author: authorSchema
+  authors: [authorSchema]
 }));
 
-async function createCourse(name, author) {
+async function createCourse(name, authors) {
   const course = new Course({
     name, 
-    author
+    authors
   }); 
-  
   const result = await course.save();
   console.log(result);
 }
@@ -45,5 +45,24 @@ async function updateAuthor(courseId) {
   course.author.name = 'Mosh Hamedani';
   course.save(); */
 }
-//createCourse('Node Course', new Author({ name: 'Mosh' }));
-updateAuthor('624b631a58207872ff4475bf');
+
+async function addAuthor(courseId, author) {
+  const course = await Course.findById(courseId);
+  course.authors.push(author);
+  course.save();
+}
+
+async function removeAuthor(courseId, authorId) {
+  const course = await Course.findById(courseId);
+  const author = course.authors.id(authorId);
+  author.remove();
+  course.save();
+}
+/* createCourse('Node Course', [
+  new Author({ name:'Mosh', bio:'Test', website:'test' }), 
+  new Author({ name:'John', bio:'Test', website:'test' })
+]); */
+/* addAuthor('624de24c7dda6d0542cf741c', new Author({name: 'Nate'})); */
+removeAuthor('624de24c7dda6d0542cf741c', '624de32b2e4d7fb566f712d5');
+
+//updateAuthor('624b631a58207872ff4475bf');
